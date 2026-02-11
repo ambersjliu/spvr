@@ -41,21 +41,21 @@ func _setup_high_res_trial() -> void:
 	# Show only the relevant UI
 	_set_ui_visibility(true, false)
 	
-	# Get POI pair from trial data
-	var poi_pair = current_trial_data["poi_pair"]
-	var poi_a_index = poi_pair["poi_a_index"]
-	var poi_b_index = poi_pair["poi_b_index"]
+	# Get target pair from trial data
+	var target_pair = current_trial_data["target_pair"]
+	var target_a_index = target_pair["target_a_index"]
+	var target_b_index = target_pair["target_b_index"]
 	
-	# Highlight the POI pair
-	sphere_controller.highlight_poi_pair(poi_a_index, poi_b_index)
+	# Highlight the target pair
+	sphere_controller.highlight_target_pair(target_a_index, target_b_index)
 	
 	# Update instructions
 	if instruction_label:
-		instruction_label.text = "Look at each highlighted viewpoint.\nWhich view is better?"
+		instruction_label.text = "Look at each highlighted viewtargetnt.\nWhich view is better?"
 	
-	# Start by looking at POI A
-	var poi_a_transform = sphere_controller.get_poi_transform(poi_a_index)
-	camera.look_at_poi(poi_a_transform)
+	# Start by looking at target A
+	var target_a_transform = sphere_controller.get_target_transform(target_a_index)
+	camera.look_at_target(target_a_transform)
 
 
 func _setup_low_res_trial() -> void:
@@ -63,8 +63,8 @@ func _setup_low_res_trial() -> void:
 	# Show low-res UI
 	_set_ui_visibility(false, true)
 	
-	# Show all POIs or hide them for free exploration
-	sphere_controller.hide_all_pois()  # Hide for free selection
+	# Show all targets or hide them for free exploration
+	sphere_controller.hide_all_targets()  # Hide for free selection
 	
 	# Reset selections
 	selected_favorite = {}
@@ -83,24 +83,24 @@ func _set_ui_visibility(show_high_res: bool, show_low_res: bool) -> void:
 # High-res trial handlers
 
 func _on_choice_a_pressed() -> void:
-	"""Participant chose POI A as better"""
+	"""Participant chose target A as better"""
 	_record_high_res_choice("A")
 
 
 func _on_choice_b_pressed() -> void:
-	"""Participant chose POI B as better"""
+	"""Participant chose target B as better"""
 	_record_high_res_choice("B")
 
 
 func _record_high_res_choice(choice: String) -> void:
 	"""Record the ranking choice and advance to next trial"""
-	var poi_pair = current_trial_data["poi_pair"]
+	var target_pair = current_trial_data["target_pair"]
 	
 	var ranking_data = {
 		"type": "high_res",
 		"scene": current_trial_data["scene"],
-		"poi_a_index": poi_pair["poi_a_index"],
-		"poi_b_index": poi_pair["poi_b_index"],
+		"target_a_index": target_pair["target_a_index"],
+		"target_b_index": target_pair["target_b_index"],
 		"choice": choice,
 		"response_time": Time.get_ticks_msec()  # You'd want to track start time too
 	}
