@@ -1,0 +1,159 @@
+extends Control
+# TrialController - Manages individual trial flow and UI
+# Handles high-res and low-res trial types
+
+@onready var camera: Camera3D = %Camera3D
+@onready var sphere_controller: Node3D = %SphereController
+
+# UI Elements (assign these in the editor)
+@export var instruction_label: Label
+
+
+var current_trial_data: Dictionary = {}
+var trial_type: int  # GameManager.TrialType
+
+# For low-res trials
+var selected_favorite: Dictionary = {}
+var selected_least_favorite: Dictionary = {}
+
+
+func _ready() -> void:
+	# Connect to GameManager
+	GameManager.trial_started.connect(_on_trial_started)
+	
+
+
+
+func _on_trial_started(trial_data: Dictionary) -> void:
+	"""Initialize a new trial based on trial data from GameManager"""
+	current_trial_data = trial_data
+	trial_type = trial_data["type"]
+	
+	match trial_type:
+		GameManager.TrialType.HIGH_RES:
+			_setup_high_res_trial()
+		GameManager.TrialType.LOW_RES:
+			_setup_low_res_trial()
+
+
+func _setup_high_res_trial() -> void:
+	"""Set up a high-resolution pairwise comparison trial"""
+	# Show only the relevant UI
+	_set_ui_visibility(true, false)
+	
+	# Get POI pair from trial data
+	var poi_pair = current_trial_data["poi_pair"]
+	var poi_a_index = poi_pair["poi_a_index"]
+	var poi_b_index = poi_pair["poi_b_index"]
+	
+	# Highlight the POI pair
+	sphere_controller.highlight_poi_pair(poi_a_index, poi_b_index)
+	
+	# Update instructions
+	if instruction_label:
+		instruction_label.text = "Look at each highlighted viewpoint.\nWhich view is better?"
+	
+	# Start by looking at POI A
+	var poi_a_transform = sphere_controller.get_poi_transform(poi_a_index)
+	camera.look_at_poi(poi_a_transform)
+
+
+func _setup_low_res_trial() -> void:
+	"""Set up a low-resolution free selection trial"""
+	# Show low-res UI
+	_set_ui_visibility(false, true)
+	
+	# Show all POIs or hide them for free exploration
+	sphere_controller.hide_all_pois()  # Hide for free selection
+	
+	# Reset selections
+	selected_favorite = {}
+	selected_least_favorite = {}
+	
+	# Update instructions
+	if instruction_label:
+		instruction_label.text = "Freely explore the scene.\nMark your favorite and least favorite views."
+
+
+func _set_ui_visibility(show_high_res: bool, show_low_res: bool) -> void:
+	"""Toggle UI elements based on trial type"""
+
+
+
+# High-res trial handlers
+
+func _on_choice_a_pressed() -> void:
+	"""Participant chose POI A as better"""
+	_record_high_res_choice("A")
+
+
+func _on_choice_b_pressed() -> void:
+	"""Participant chose POI B as better"""
+	_record_high_res_choice("B")
+
+
+func _record_high_res_choice(choice: String) -> void:
+	"""Record the ranking choice and advance to next trial"""
+	var poi_pair = current_trial_data["poi_pair"]
+	
+	var ranking_data = {
+		"type": "high_res",
+		"scene": current_trial_data["scene"],
+		"poi_a_index": poi_pair["poi_a_index"],
+		"poi_b_index": poi_pair["poi_b_index"],
+		"choice": choice,
+		"response_time": Time.get_ticks_msec()  # You'd want to track start time too
+	}
+	
+	GameManager.record_ranking(ranking_data)
+	GameManager.start_next_trial()
+
+
+# Low-res trial handlers
+#
+#func _on_mark_favorite_pressed() -> void:
+	#"""Mark current view as favorite"""
+	#selected_favorite = camera.get_spherical_coordinates()
+	#selected_favorite["timestamp"] = Time.get_ticks_msec()
+	#
+	#if favorite_button:
+		#favorite_button.text = "Favorite Marked ✓"
+	#
+	#_update_confirm_button()
+#
+#
+#func _on_mark_least_favorite_pressed() -> void:
+	#"""Mark current view as least favorite"""
+	#selected_least_favorite = camera.get_spherical_coordinates()
+	#selected_least_favorite["timestamp"] = Time.get_ticks_msec()
+	#
+	#if least_favorite_button:
+		#least_favorite_button.text = "Least Favorite Marked ✓"
+	#
+	#_update_confirm_button()
+#
+#
+#func _update_confirm_button() -> void:
+	#"""Enable confirm button only when both selections are made"""
+	#if confirm_button:
+		#confirm_button.disabled = selected_favorite.is_empty() or selected_least_favorite.is_empty()
+#
+#
+#func _on_confirm_pressed() -> void:
+	#"""Submit low-res trial selections"""
+	#var ranking_data = {
+		#"type": "low_res",
+		#"scene": current_trial_data["scene"],
+		#"favorite": selected_favorite,
+		#"least_favorite": selected_least_favorite
+	#}
+	#
+	#GameManager.record_ranking(ranking_data)
+	#
+	## Reset button text
+	#if favorite_button:
+		#favorite_button.text = "Mark Favorite"
+	#if least_favorite_button:
+		#least_favorite_button.text = "Mark Least Favorite"
+	#
+	#GameManager.start_next_trial()
