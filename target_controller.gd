@@ -8,6 +8,8 @@ const elevated_targets = global.VERTICAL_TARGETS
 var target_transforms: Array[Transform3D] = []
 var target_markers: Array[Node3D] = []
 
+signal target_selected(target_index: int)
+
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	_generate_target_transforms()
@@ -69,6 +71,15 @@ func _create_targets():
 		var target: Node3D = target_scene.instantiate()
 		target.transform = target_transforms[i]
 		target.visible = true
+
+		if "target_index" in target:
+			target.target_index = i
+			print("Target with index " + i + " added")
+
+		if target.has_signal("target_selected"):
+			target.target_selected.connect(_on_target_selected)
+
+
 		add_child(target)
 		target_markers.append(target)
 
@@ -84,3 +95,7 @@ func _hide_target_pair(index_1: int, index_2: int):
 	target_markers[index_1].visible = false
 	target_markers[index_2].visible = false
 		
+func _on_target_selected(target_index: int):
+	"""Handle target selection - relay to TrialController"""
+	print("TargetController received selection: ", target_index)
+	target_selected.emit(target_index)

@@ -20,6 +20,8 @@ var selected_least_favorite: Dictionary = {}
 func _ready() -> void:
 	# Connect to GameManager
 	GameManager.trial_started.connect(_on_trial_started)
+	if target_controller and target_controller.has_signal("target_selected"):
+		target_controller.target_selected.connect(_on_target_selected)
 	
 
 
@@ -82,15 +84,27 @@ func _set_ui_visibility(show_high_res: bool, show_low_res: bool) -> void:
 
 # High-res trial handlers
 
-func _on_choice_a_pressed() -> void:
-	"""Participant chose target A as better"""
-	_record_high_res_choice("A")
 
-
-func _on_choice_b_pressed() -> void:
-	"""Participant chose target B as better"""
-	_record_high_res_choice("B")
-
+func _on_target_selected(target_index: int) -> void:
+	"""Handle target selection from TargetController"""
+	if trial_type != GameManager.TrialType.HIGH_RES:
+		return
+	
+	var target_pair = current_trial_data["target_pair"]
+	var target_a_index = target_pair["target_a_index"]
+	var target_b_index = target_pair["target_b_index"]
+	
+	# Determine which target was selected
+	var choice: String
+	if target_index == target_a_index:
+		choice = "A"
+	elif target_index == target_b_index:
+		choice = "B"
+	else:
+		push_warning("Invalid target selected: ", target_index)
+		return
+	
+	_record_high_res_choice(choice, target_index)
 
 func _record_high_res_choice(choice: String) -> void:
 	"""Record the ranking choice and advance to next trial"""

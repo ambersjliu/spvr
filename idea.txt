@@ -1,0 +1,13 @@
+https://godotvr.github.io/godot-xr-tools/docs/pointer/
+https://kidscancode.org/godot_recipes/4.x/basics/file_io/index.html 
+
+1. To handle saving/creating user data, we first try to read user:://saved.csv or wherever we're reading it 
+2. If the file is empty, we create a new file and initialize the experiment with participant id 0
+3. Else, read the latest entry and initialize the experiment with the latest participant id + 1
+4. Initialize a Viewport2Din3D explaining the experiment with a start button that the user can click on 
+5. On start button clicked, call GameManager.initialize_experiment(participant id, all_scenes, high_res_subset) and GameManager.start_experiment()
+6. We attach a script similar to the "colour changing cube" to the targets and have the targets check if their id matches one of the two targets currently being considered for this trial, then call the _record_high_res_choice() function appropriately
+7. for the low-res ranking, we need to create a large sphere collider of the same radius that the targets are located at (? maybe?)
+- we need to use different buttons/controllers/something to differentiate between best and worst selections
+- And we need to mark where the player clicked by spawning a target at the point of collision with the large sphere 
+- Players need to be able to redo their choices and confirm? (not sure)

@@ -100,6 +100,7 @@ func record_ranking(trial_data: Dictionary) -> void:
 	
 	# Save to ExperimentData singleton
 	#ExperimentData.add_trial_result(trial_data)
+	print(trial_data)
 
 
 func load_scene(scene_path: String) -> void:
