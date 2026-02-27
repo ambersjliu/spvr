@@ -11,3 +11,17 @@ https://kidscancode.org/godot_recipes/4.x/basics/file_io/index.html
 - we need to use different buttons/controllers/something to differentiate between best and worst selections
 - And we need to mark where the player clicked by spawning a target at the point of collision with the large sphere 
 - Players need to be able to redo their choices and confirm? (not sure)
+
+
+Main (Node3D)
+├── WorldEnvironment
+├── XROrigin3D (VR) or Player (Desktop)
+│   └── Camera3D / XRCamera3D
+├── SphereEnvironment (Node3D)
+│   ├── InvertedCube (360 photo mesh)
+│   ├── TargetController (for high-res trials)
+│   └── DomeCollider (StaticBody3D) [dome_collider.gd]
+│       ├── CollisionShape3D (hemisphere shape)
+│       └── MeshInstance3D (optional visualization)
+└── UI (Control)
+    └── TrialUI [trial_controller.gd]

@@ -11,9 +11,9 @@ extends Control
 
 # Scene configuration
 @export var scene_directory: String = "res://resources/360_photos/"
-@export var auto_scan_scenes: bool = true
+@export var auto_scan_scenes: bool = false
 @export_file("*.jpg", "*.png") var manual_scene_paths: Array[String] = []
-@export var high_res_scene_indices: Array[int] = [0, 1, 2]
+@export var high_res_scene_indices: Array[int] = [0, 1]
 
 var participant_id: String = ""
 var is_experiment_active: bool = false
@@ -21,7 +21,7 @@ var is_experiment_active: bool = false
 
 func _ready() -> void:
 	# Get next participant ID
-	participant_id = ExperimentData.get_next_participant_id()
+	participant_id = "0"
 	
 	# Update UI
 	if participant_label:
@@ -45,21 +45,7 @@ func _ready() -> void:
 
 func _get_intro_text() -> String:
 	"""Generate intro text explaining the experiment"""
-	return """Welcome to the Scene Canonicity Experiment!
-
-In this study, you will view 360-degree photos of various scenes and rate different viewpoints.
-
-The experiment has two phases:
-
-HIGH-RESOLUTION RANKING:
-You will see pairs of highlighted viewpoints in selected scenes.
-Click on the viewpoint you prefer to look at.
-
-LOW-RESOLUTION RANKING:
-You will freely explore scenes and mark your favorite and least favorite viewing angles.
-
-Press START when you're ready to begin.
-"""
+	return """Some text about the experiment! Press Start to get started!"""
 
 
 func _on_start_button_pressed() -> void:
@@ -96,11 +82,11 @@ func _on_start_button_pressed() -> void:
 		high_res_scenes = all_scenes.slice(0, min(3, all_scenes.size()))
 	
 	# Set up experiment metadata
-	ExperimentData.set_metadata("participant_id", participant_id)
-	ExperimentData.set_metadata("start_time", Time.get_datetime_string_from_system())
-	ExperimentData.set_metadata("godot_version", Engine.get_version_info()["string"])
-	ExperimentData.set_metadata("total_scenes", all_scenes.size())
-	ExperimentData.set_metadata("high_res_scenes", high_res_scenes.size())
+	#ExperimentData.set_metadata("participant_id", participant_id)
+	#ExperimentData.set_metadata("start_time", Time.get_datetime_string_from_system())
+	#ExperimentData.set_metadata("godot_version", Engine.get_version_info()["string"])
+	#ExperimentData.set_metadata("total_scenes", all_scenes.size())
+	#ExperimentData.set_metadata("high_res_scenes", high_res_scenes.size())
 	
 	# Initialize GameManager
 	GameManager.initialize_experiment(participant_id, all_scenes, high_res_scenes)
@@ -161,7 +147,7 @@ func _on_experiment_completed() -> void:
 		start_button.visible = false
 	
 	# Export final data
-	_export_final_data()
+	#_export_final_data()
 
 
 func _export_final_data() -> void:
